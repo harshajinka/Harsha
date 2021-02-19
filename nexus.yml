@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: install JDK
+      apt: name=openjdk-8-jdk state=present
+
+    - name: download nexus package
+      get_url:
+        url: https://download.sonatype.com/nexus/oss/nexus-latest-bundle.tar.gz
+        dest: /home/ram
+        force_basic_auth: yes
+
+    - name: install unzip
+      apt: name=unzip state=present
+
+    - name: chnage permisions
+      command: chmod 777 nexus-2.14.20-02-bundle.tar.gz
+      args:
+        chdir: /home/ram
+
+    - name: extract tar file
+      unarchive:
+        src: /home/ram/nexus-2.14.20-02-bundle.tar.gz
+        dest: /home/ram
+        remote_src: yes
+
+    - name: start nexus
+      command: ./nexus-2.14.20-02/bin/nexus start
+      become_user: ram
+      args:
+        chdir: /home/ram
